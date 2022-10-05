@@ -2,7 +2,7 @@ extends KinematicBody2D
 class_name CharacterBase
 
 
-enum STATE_MACHINE {IDLE, WALK, JUMP, DOUBLE_JUMP, FALL}
+enum STATE_MACHINE {IDLE, WALK, JUMP, JUMP_2, FALL}
 var state = STATE_MACHINE.IDLE
 var motion := Vector2()
 var animation_name := ''

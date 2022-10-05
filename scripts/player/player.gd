@@ -1,12 +1,15 @@
 extends CharacterBase
 
 
+var double_jump := true
+
+
 func _process(delta: float) -> void:
   match state:
     STATE_MACHINE.IDLE: _state_idle(delta)
     STATE_MACHINE.WALK: _state_walk(delta)
     STATE_MACHINE.JUMP: _state_jump(delta)
-    STATE_MACHINE.DOUBLE_JUMP: _state_double_jump(delta)
+    STATE_MACHINE.JUMP_2: _state_jump_2(delta)
     STATE_MACHINE.FALL: _state_fall(delta)
 
 
@@ -14,6 +17,9 @@ func _state_idle(delta: float) -> void:
   _set_animation('idle')
   _apply_gravity(delta)
   _stop_movement()
+  
+  if enter_state:
+    double_jump = true
   
   if direction:
     _enter_state(STATE_MACHINE.WALK)
@@ -32,7 +38,7 @@ func _state_walk(delta: float) -> void:
     _enter_state(STATE_MACHINE.IDLE)
   
   if Input.is_action_just_pressed('ui_jump'):
-    _enter_state(STATE_MACHINE.DOUBLE_JUMP)
+    _enter_state(STATE_MACHINE.JUMP_2)
 
 
 func _state_jump(delta: float) -> void:
@@ -47,9 +53,13 @@ func _state_jump(delta: float) -> void:
     
   if motion.y > 0:
     _enter_state(STATE_MACHINE.FALL)
+    
+  if Input.is_action_just_pressed('ui_jump') and double_jump:
+    double_jump = false
+    _enter_state(STATE_MACHINE.JUMP_2)
 
 
-func _state_double_jump(delta: float) -> void:
+func _state_jump_2(delta: float) -> void:
   _set_animation('jump_2')
   _apply_gravity(delta)
   _set_flip()
@@ -62,7 +72,10 @@ func _state_double_jump(delta: float) -> void:
   if motion.y > 0:
     _enter_state(STATE_MACHINE.FALL)
     
-
+  if Input.is_action_just_pressed('ui_jump') and double_jump:
+    double_jump = false
+    motion.y = -jump_force
+    
 
 func _state_fall(delta: float) -> void:
   _set_animation('fall')
@@ -72,3 +85,7 @@ func _state_fall(delta: float) -> void:
   
   if is_on_floor():
     _enter_state(STATE_MACHINE.IDLE)
+    
+  if Input.is_action_just_pressed('ui_jump') and double_jump:
+    _enter_state(STATE_MACHINE.JUMP_2)
+    double_jump = false
