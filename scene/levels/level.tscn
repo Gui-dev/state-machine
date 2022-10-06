@@ -9,7 +9,7 @@ extents = Vector2( 182, 10 )
 [node name="Level" type="Node2D"]
 
 [node name="floor" type="StaticBody2D" parent="."]
-position = Vector2( 0, 189 )
+position = Vector2( 0, 196 )
 
 [node name="texture" type="Sprite" parent="floor"]
 modulate = Color( 0, 0, 0, 1 )

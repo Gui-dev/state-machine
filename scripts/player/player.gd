@@ -1,7 +1,8 @@
 extends CharacterBase
 
 
-var double_jump := true
+var jumps := 0
+export var max_jumps := 2
 
 
 func _process(delta: float) -> void:
@@ -11,6 +12,7 @@ func _process(delta: float) -> void:
     STATE_MACHINE.JUMP: _state_jump(delta)
     STATE_MACHINE.JUMP_2: _state_jump_2(delta)
     STATE_MACHINE.FALL: _state_fall(delta)
+    STATE_MACHINE.ATTACK_1: _state_attack_1(delta)
 
 
 func _state_idle(delta: float) -> void:
@@ -19,13 +21,14 @@ func _state_idle(delta: float) -> void:
   _stop_movement()
   
   if enter_state:
-    double_jump = true
+    jumps = 0
   
   if direction:
-    _enter_state(STATE_MACHINE.WALK)
-  
-  if Input.is_action_just_pressed('ui_jump'):
+    _enter_state(STATE_MACHINE.WALK)  
+  elif Input.is_action_just_pressed('ui_jump'):
     _enter_state(STATE_MACHINE.JUMP)
+  elif Input.is_action_just_pressed('ui_attack'):
+    _enter_state(STATE_MACHINE.ATTACK_1)
   
 
 func _state_walk(delta: float) -> void:
@@ -36,9 +39,10 @@ func _state_walk(delta: float) -> void:
   
   if not direction:
     _enter_state(STATE_MACHINE.IDLE)
-  
-  if Input.is_action_just_pressed('ui_jump'):
+  elif Input.is_action_just_pressed('ui_jump'):
     _enter_state(STATE_MACHINE.JUMP_2)
+  elif Input.is_action_just_pressed('ui_attack'):
+    _enter_state(STATE_MACHINE.ATTACK_1)
 
 
 func _state_jump(delta: float) -> void:
@@ -50,12 +54,12 @@ func _state_jump(delta: float) -> void:
   if enter_state:
     enter_state = false
     motion.y = -jump_force
+    jumps += 1
     
   if motion.y > 0:
     _enter_state(STATE_MACHINE.FALL)
     
-  if Input.is_action_just_pressed('ui_jump') and double_jump:
-    double_jump = false
+  if Input.is_action_just_pressed('ui_jump') and jumps < max_jumps:
     _enter_state(STATE_MACHINE.JUMP_2)
 
 
@@ -68,12 +72,13 @@ func _state_jump_2(delta: float) -> void:
   if enter_state:
     enter_state = false
     motion.y = -jump_force
+    jumps += 1
   
   if motion.y > 0:
     _enter_state(STATE_MACHINE.FALL)
     
-  if Input.is_action_just_pressed('ui_jump') and double_jump:
-    double_jump = false
+  if Input.is_action_just_pressed('ui_jump') and jumps < max_jumps:
+    jumps += 1
     motion.y = -jump_force
     
 
@@ -86,6 +91,15 @@ func _state_fall(delta: float) -> void:
   if is_on_floor():
     _enter_state(STATE_MACHINE.IDLE)
     
-  if Input.is_action_just_pressed('ui_jump') and double_jump:
+  if Input.is_action_just_pressed('ui_jump') and jumps < max_jumps:
     _enter_state(STATE_MACHINE.JUMP_2)
-    double_jump = false
+
+
+func _state_attack_1(delta: float) -> void:
+  _set_animation('attack_1')
+  _stop_movement()
+  
+  if enter_state:
+    enter_state = false
+    yield(get_tree().create_timer(0.6), 'timeout')
+    _enter_state(STATE_MACHINE.IDLE)
