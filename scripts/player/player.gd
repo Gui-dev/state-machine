@@ -13,6 +13,7 @@ func _process(delta: float) -> void:
     STATE_MACHINE.JUMP_2: _state_jump_2(delta)
     STATE_MACHINE.FALL: _state_fall(delta)
     STATE_MACHINE.ATTACK_1: _state_attack_1(delta)
+    STATE_MACHINE.ATTACK_2: _state_attack_2(delta)
 
 
 func _state_idle(delta: float) -> void:
@@ -95,11 +96,27 @@ func _state_fall(delta: float) -> void:
     _enter_state(STATE_MACHINE.JUMP_2)
 
 
-func _state_attack_1(delta: float) -> void:
+func _state_attack_1(_delta: float) -> void:
   _set_animation('attack_1')
   _stop_movement()
   
   if enter_state:
     enter_state = false
-    yield(get_tree().create_timer(0.6), 'timeout')
-    _enter_state(STATE_MACHINE.IDLE)
+    attack_timer.start()
+    
+  if Input.is_action_just_pressed('ui_attack'):
+    attack_timer.stop()
+    _enter_state(STATE_MACHINE.ATTACK_2)
+
+
+func _state_attack_2(_delta: float) -> void:
+  _set_animation('attack_2')
+  _stop_movement()
+  
+  if enter_state:
+    enter_state = false
+    attack_timer.start()
+
+
+func _on_attack_timer_timeout() -> void:
+  _enter_state(STATE_MACHINE.IDLE)

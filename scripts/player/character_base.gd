@@ -10,6 +10,7 @@ var direction := 0.0
 var enter_state := true
 onready var sprite: Sprite = get_node('texture')
 onready var animation: AnimationPlayer = get_node('animation')
+onready var attack_timer: Timer = get_node('attack_timer')
 export var speed := 100
 export var jump_force := 150
 export var gravity := 9.8

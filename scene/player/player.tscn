@@ -178,3 +178,9 @@ anims/idle = SubResource( 3 )
 anims/jump = SubResource( 4 )
 anims/jump_2 = SubResource( 7 )
 anims/walk = SubResource( 5 )
+
+[node name="attack_timer" type="Timer" parent="."]
+wait_time = 0.6
+one_shot = true
+
+[connection signal="timeout" from="attack_timer" to="." method="_on_attack_timer_timeout"]
