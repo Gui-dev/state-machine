@@ -30,7 +30,7 @@ func _set_animation(anim: String) -> void:
     animation.play(animation_name)
 
 
-func _move_and_slide(delta: float) -> void:
+func _move_and_slide(_delta: float) -> void:
   motion.x = direction * speed
   
 

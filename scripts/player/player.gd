@@ -14,6 +14,7 @@ func _process(delta: float) -> void:
     STATE_MACHINE.FALL: _state_fall(delta)
     STATE_MACHINE.ATTACK_1: _state_attack_1(delta)
     STATE_MACHINE.ATTACK_2: _state_attack_2(delta)
+    STATE_MACHINE.ATTACK_3: _state_attack_3(delta)
 
 
 func _state_idle(delta: float) -> void:
@@ -102,6 +103,7 @@ func _state_attack_1(_delta: float) -> void:
   
   if enter_state:
     enter_state = false
+    attack_timer.wait_time = 1
     attack_timer.start()
     
   if Input.is_action_just_pressed('ui_attack'):
@@ -115,7 +117,24 @@ func _state_attack_2(_delta: float) -> void:
   
   if enter_state:
     enter_state = false
+    attack_timer.wait_time = 1
     attack_timer.start()
+    
+  if Input.is_action_just_pressed('ui_attack'):
+    attack_timer.stop()
+    _enter_state(STATE_MACHINE.ATTACK_3)
+
+
+func _state_attack_3(_delta: float) -> void:
+  _set_animation('attack_3')
+  _stop_movement()
+  
+  if enter_state:
+    enter_state = false
+    attack_timer.wait_time = 0.6
+    attack_timer.start()
+    yield(get_tree().create_timer(0.2), 'timeout')
+    get_parent().get_node('camera').shake(30)
 
 
 func _on_attack_timer_timeout() -> void:
